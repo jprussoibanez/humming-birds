@@ -1,6 +1,7 @@
 using UnityEngine;
 using Unity.MLAgents;
 using Unity.MLAgents.Sensors;
+using Unity.MLAgents.Actuators;
 
 /// <summary>
 /// Hummingbird machine learning agent.
@@ -100,9 +101,11 @@ public class HummingbirdAgent : Agent
     /// Index 4: yaw angle (+1 = turn right, -1 = turn left)
     /// </summary>
     /// <param name="vectorAction">The actions to take</param>
-    public override void OnActionReceived(float[] vectorAction)
+    public override void OnActionReceived(ActionBuffers actions)
     {
         if (frozen) return;
+
+        ActionSegment<float> vectorAction = actions.ContinuousActions;
 
         // Calculate movement vector
         Vector3 move = new Vector3(vectorAction[0], vectorAction[1], vectorAction[2]);
@@ -175,8 +178,9 @@ public class HummingbirdAgent : Agent
     /// <see cref="OnActionReceived(float[])"/> instead of using the neural network
     /// </summary>
     /// <param name="actionsOut">And output action array</param>
-    public override void Heuristic(float[] actionsOut)
+    public override void Heuristic(in ActionBuffers actionsOut)
     {
+        var actionsOutContinuous = actionsOut.ContinuousActions;
         // Create placeholders for all movement/turning
         Vector3 forward = Vector3.zero;
         Vector3 left = Vector3.zero;
@@ -211,11 +215,11 @@ public class HummingbirdAgent : Agent
         Vector3 combined = (forward + left + up).normalized;
 
         // Add the 3 movement values, pitch, and yaw to the actionsOut array
-        actionsOut[0] = combined.x;
-        actionsOut[1] = combined.y;
-        actionsOut[2] = combined.z;
-        actionsOut[3] = pitch;
-        actionsOut[4] = yaw;
+        actionsOutContinuous[0] = combined.x;
+        actionsOutContinuous[1] = combined.y;
+        actionsOutContinuous[2] = combined.z;
+        actionsOutContinuous[3] = pitch;
+        actionsOutContinuous[4] = yaw;
     }
 
     /// <summary>

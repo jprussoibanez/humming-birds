@@ -30,3 +30,6 @@
 
 # Gradle cache directory
 .gradle/
+
+# ML agents training results
+ml_agents/results/*
